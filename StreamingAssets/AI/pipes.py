@@ -1,4 +1,6 @@
-from .geometry import segment_intersects_forbidden
+"""Irrigation pipe network generation."""
+
+from geometry import segment_intersects_forbidden
 
 
 def _build_pipe_segments_for_hub(width, height, border, spacing, well_x, well_z, trees, strategy, hub_x, hub_z, forbidden_zones):
@@ -20,12 +22,12 @@ def _build_pipe_segments_for_hub(width, height, border, spacing, well_x, well_z,
     if well_x != hub_x:
         l_options.append([
             {"start": {"x": well_x, "z": well_z}, "end": {"x": hub_x, "z": well_z}},
-            {"start": {"x": hub_x, "z": well_z}, "end": {"x": hub_x, "z": hub_z}}
+            {"start": {"x": hub_x, "z": well_z}, "end": {"x": hub_x, "z": hub_z}},
         ])
     if well_z != hub_z:
         l_options.append([
             {"start": {"x": well_x, "z": well_z}, "end": {"x": well_x, "z": hub_z}},
-            {"start": {"x": well_x, "z": hub_z}, "end": {"x": hub_x, "z": hub_z}}
+            {"start": {"x": well_x, "z": hub_z}, "end": {"x": hub_x, "z": hub_z}},
         ])
 
     best_l = None
@@ -110,7 +112,7 @@ def _build_pipe_segments_for_hub(width, height, border, spacing, well_x, well_z,
         "invalid_pipe_count": invalid_pipe_count,
         "forbidden_hits": forbidden_hits,
         "hub_choice": (hub_x, hub_z),
-        "reroute": best_l is not None and len(best_l) > 0
+        "reroute": best_l is not None and len(best_l) > 0,
     }
 
 
@@ -129,12 +131,14 @@ def generate_pipes(width, height, border, spacing, well_x, well_z, trees, strate
         (min_x - 1, (min_z + max_z) / 2),
         (max_x + 1, (min_z + max_z) / 2),
         ((min_x + max_x) / 2, min_z - 1),
-        ((min_x + max_x) / 2, max_z + 1)
+        ((min_x + max_x) / 2, max_z + 1),
     ]
 
     layouts = []
     for hub_x, hub_z in hub_candidates:
-        layout = _build_pipe_segments_for_hub(width, height, border, spacing, well_x, well_z, trees, strategy, hub_x, hub_z, forbidden_zones)
+        layout = _build_pipe_segments_for_hub(
+            width, height, border, spacing, well_x, well_z, trees, strategy, hub_x, hub_z, forbidden_zones
+        )
         layouts.append(layout)
 
     return layouts

@@ -1,3 +1,6 @@
+"""Geometric checks for forbidden zones and well safe areas."""
+
+
 def point_in_forbidden(x, z, forbidden_zones):
     for zone in forbidden_zones:
         dx = x - zone["x"]

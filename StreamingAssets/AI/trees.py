@@ -1,4 +1,6 @@
-from .geometry import point_in_forbidden, point_in_well_safe_zone
+"""Tree placement and irrigation coverage checks."""
+
+from geometry import point_in_forbidden, point_in_well_safe_zone
 
 
 def generate_trees_centered(width, height, border, spacing, well_x, well_z, well_safe_radius=0.0, forbidden_zones=None):
@@ -24,7 +26,9 @@ def generate_trees_centered(width, height, border, spacing, well_x, well_z, well
             pos_x = start_x + x * spacing
             pos_z = start_z + z * spacing
 
-            if point_in_forbidden(pos_x, pos_z, forbidden_zones) or point_in_well_safe_zone(pos_x, pos_z, well_x, well_z, well_safe_radius):
+            if point_in_forbidden(pos_x, pos_z, forbidden_zones) or point_in_well_safe_zone(
+                pos_x, pos_z, well_x, well_z, well_safe_radius
+            ):
                 invalid_tree_count += 1
                 continue
 
@@ -40,7 +44,7 @@ def generate_trees_centered(width, height, border, spacing, well_x, well_z, well
         "invalid_tree_count": invalid_tree_count,
         "layout_mode": "centered",
         "spacing_x": spacing,
-        "spacing_z": spacing
+        "spacing_z": spacing,
     }
 
 
@@ -66,7 +70,9 @@ def generate_trees_adaptive_fill(width, height, border, base_spacing, well_x, we
             pos_x = start_x + x * spacing_x
             pos_z = start_z + z * spacing_z
 
-            if point_in_forbidden(pos_x, pos_z, forbidden_zones) or point_in_well_safe_zone(pos_x, pos_z, well_x, well_z, well_safe_radius):
+            if point_in_forbidden(pos_x, pos_z, forbidden_zones) or point_in_well_safe_zone(
+                pos_x, pos_z, well_x, well_z, well_safe_radius
+            ):
                 invalid_tree_count += 1
                 continue
 
@@ -82,15 +88,28 @@ def generate_trees_adaptive_fill(width, height, border, base_spacing, well_x, we
         "invalid_tree_count": invalid_tree_count,
         "layout_mode": "adaptive_fill",
         "spacing_x": spacing_x,
-        "spacing_z": spacing_z
+        "spacing_z": spacing_z,
     }
 
 
-def generate_trees(width, height, border, spacing, well_x, well_z, well_safe_radius=0.0, forbidden_zones=None, layout_mode="centered", base_spacing=5.0):
+def generate_trees(
+    width,
+    height,
+    border,
+    spacing,
+    well_x,
+    well_z,
+    well_safe_radius=0.0,
+    forbidden_zones=None,
+    layout_mode="centered",
+    base_spacing=5.0,
+):
     if layout_mode == "centered":
         return generate_trees_centered(width, height, border, spacing, well_x, well_z, well_safe_radius, forbidden_zones)
     if layout_mode == "adaptive_fill":
-        return generate_trees_adaptive_fill(width, height, border, base_spacing, well_x, well_z, well_safe_radius, forbidden_zones)
+        return generate_trees_adaptive_fill(
+            width, height, border, base_spacing, well_x, well_z, well_safe_radius, forbidden_zones
+        )
     return generate_trees_centered(width, height, border, spacing, well_x, well_z, well_safe_radius, forbidden_zones)
 
 

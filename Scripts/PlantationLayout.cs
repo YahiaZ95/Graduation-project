@@ -26,7 +26,7 @@ public class PlantationLayout : MonoBehaviour
 
     public void GeneratePlants()
     {
-        if (ground == null || treePrefab == null || plamPrefab)
+        if (ground == null || treePrefab == null || plamPrefab == null)
         {
             Debug.LogError("Missing references.");
             return;

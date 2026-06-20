@@ -1,10 +1,34 @@
-from .config import CROP_CONFIG
-from .trees import generate_trees, is_tree_served
-from .pipes import generate_pipes, calculate_total_pipe_length
+"""Layout scoring and selection of the best farm plan."""
+
+from config import get_crop_config
+from trees import generate_trees, is_tree_served
+from pipes import generate_pipes, calculate_total_pipe_length
 
 
-def evaluate_layout_with_mode(width, height, border, base_spacing, well_x, well_z, forbidden_zones=None, well_safe_radius=0.0, strategy="main_vertical", layout_mode="centered"):
-    tree_result = generate_trees(width, height, border, base_spacing, well_x, well_z, well_safe_radius=well_safe_radius, forbidden_zones=forbidden_zones, layout_mode=layout_mode)
+def evaluate_layout_with_mode(
+    width,
+    height,
+    border,
+    base_spacing,
+    well_x,
+    well_z,
+    forbidden_zones=None,
+    well_safe_radius=0.0,
+    strategy="main_vertical",
+    layout_mode="centered",
+):
+    tree_result = generate_trees(
+        width,
+        height,
+        border,
+        base_spacing,
+        well_x,
+        well_z,
+        well_safe_radius=well_safe_radius,
+        forbidden_zones=forbidden_zones,
+        layout_mode=layout_mode,
+        base_spacing=base_spacing,
+    )
     trees = tree_result["trees"]
     tree_count = tree_result["tree_count"]
     invalid_tree_count = tree_result["invalid_tree_count"]
@@ -12,7 +36,9 @@ def evaluate_layout_with_mode(width, height, border, base_spacing, well_x, well_
     spacing_x = tree_result["spacing_x"]
     spacing_z = tree_result["spacing_z"]
 
-    candidates = generate_pipes(width, height, border, base_spacing, well_x, well_z, trees, strategy=strategy, forbidden_zones=forbidden_zones)
+    candidates = generate_pipes(
+        width, height, border, base_spacing, well_x, well_z, trees, strategy=strategy, forbidden_zones=forbidden_zones
+    )
 
     rows = {}
     for t in trees:
@@ -22,6 +48,7 @@ def evaluate_layout_with_mode(width, height, border, base_spacing, well_x, well_
     for t in trees:
         cx = round(t["x"], 2)
         cols.setdefault(cx, []).append(t)
+
     main_pipe_count = 1
     if strategy == "main_vertical":
         branch_pipe_count = max(0, len(rows) - 1)
@@ -81,7 +108,7 @@ def evaluate_layout_with_mode(width, height, border, base_spacing, well_x, well_
             "spacing_z": spacing_z,
             "main_pipe_count": main_pipe_count,
             "branch_pipe_count": branch_pipe_count,
-            "lateral_pipe_count": lateral_pipe_count
+            "lateral_pipe_count": lateral_pipe_count,
         }
 
         if best is None:
@@ -133,14 +160,15 @@ def evaluate_layout_with_mode(width, height, border, base_spacing, well_x, well_
             "spacing_z": base_spacing,
             "main_pipe_count": 0,
             "branch_pipe_count": 0,
-            "lateral_pipe_count": 0
+            "lateral_pipe_count": 0,
         }
 
     return best
 
 
 def find_best_layout(width, height, crop_type, border, well_x, well_z, forbidden_zones=None, well_safe_radius=0.0):
-    base_spacing = CROP_CONFIG.get(crop_type, CROP_CONFIG[0])["spacing"]
+    crop_cfg = get_crop_config(crop_type)
+    base_spacing = crop_cfg["spacing"]
 
     layout_modes = ["centered", "adaptive_fill"]
     strategy_options = ["main_vertical", "main_horizontal"]
@@ -148,7 +176,18 @@ def find_best_layout(width, height, crop_type, border, well_x, well_z, forbidden
     best = None
     for layout_mode in layout_modes:
         for st in strategy_options:
-            candidate = evaluate_layout_with_mode(width, height, border, base_spacing, well_x, well_z, forbidden_zones=forbidden_zones, well_safe_radius=well_safe_radius, strategy=st, layout_mode=layout_mode)
+            candidate = evaluate_layout_with_mode(
+                width,
+                height,
+                border,
+                base_spacing,
+                well_x,
+                well_z,
+                forbidden_zones=forbidden_zones,
+                well_safe_radius=well_safe_radius,
+                strategy=st,
+                layout_mode=layout_mode,
+            )
 
             if best is None:
                 best = candidate
@@ -192,16 +231,21 @@ def process_request(json_data):
     well_z = json_data["well_position"]["z"]
     well_safe_radius = json_data.get("well_safe_radius", 0.0)
 
-    border = CROP_CONFIG.get(crop_type, CROP_CONFIG[0])["border"]
+    crop_cfg = get_crop_config(crop_type)
+    border = crop_cfg["border"]
     forbidden_zones = json_data.get("forbidden_zones", [])
 
-    best = find_best_layout(width, height, crop_type, border, well_x, well_z, forbidden_zones=forbidden_zones, well_safe_radius=well_safe_radius)
+    best = find_best_layout(
+        width, height, crop_type, border, well_x, well_z,
+        forbidden_zones=forbidden_zones,
+        well_safe_radius=well_safe_radius,
+    )
 
     return {
         "trees": best["trees"],
         "pipes": best["pipes"],
         "debug": {
-            "crop_type": CROP_CONFIG.get(crop_type, CROP_CONFIG[0])["name"],
+            "crop_type": crop_cfg["name"],
             "layout_mode": best["layout_mode"],
             "spacing": best["spacing"],
             "spacing_x": best["spacing_x"],
@@ -223,6 +267,6 @@ def process_request(json_data):
             "lateral_pipe_count": best["lateral_pipe_count"],
             "strategy": best.get("strategy", "unknown"),
             "selected_strategy": best.get("selected_strategy", best.get("strategy", "unknown")),
-            "reroute_used": best.get("reroute_used", False)
-        }
+            "reroute_used": best.get("reroute_used", False),
+        },
     }

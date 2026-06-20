@@ -1,8 +1,17 @@
 AI backend deployment layout
 
+Source files (all required for python runtime):
+- server.py       TCP entry point
+- evaluate.py     scoring and best-layout selection
+- trees.py        tree placement
+- pipes.py        irrigation pipe network
+- geometry.py     forbidden-zone checks
+- config.py       crop spacing settings
+- run_backend.bat launcher script
+
 Preferred layout next to the final build:
 - Game.exe
-- Game_Data\StreamingAssets\AI\server.py
+- Game_Data\StreamingAssets\AI\*.py
 - Game_Data\StreamingAssets\AI\run_backend.bat
 - Optional: Game_Data\StreamingAssets\AI\AIBackend.exe
 - Optional: Game_Data\StreamingAssets\AI\python\python.exe
@@ -17,8 +26,9 @@ Runtime behavior
 Recommended production package
 - Ship Game.exe
 - Ship Game_Data folder
+- Ship all .py files in Game_Data\StreamingAssets\AI
 - Put AIBackend.exe in Game_Data\StreamingAssets\AI if you package the Python backend as an executable.
-- If you do not have AIBackend.exe, ship server.py plus an embedded Python runtime in Game_Data\StreamingAssets\AI\python.
+- If you do not have AIBackend.exe, ship the .py files plus an embedded Python runtime in Game_Data\StreamingAssets\AI\python.
 
 New machine checklist
 - Option A: AIBackend.exe exists in StreamingAssets\AI.
