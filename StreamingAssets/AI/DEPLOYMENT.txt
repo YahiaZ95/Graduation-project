@@ -1,0 +1,26 @@
+AI backend deployment layout
+
+Preferred layout next to the final build:
+- Game.exe
+- Game_Data\StreamingAssets\AI\server.py
+- Game_Data\StreamingAssets\AI\run_backend.bat
+- Optional: Game_Data\StreamingAssets\AI\AIBackend.exe
+- Optional: Game_Data\StreamingAssets\AI\python\python.exe
+
+Runtime behavior
+- Unity first tries to connect to 127.0.0.1:5005.
+- If the backend is not running, Unity auto-starts one of these in order:
+  1. AIBackend.exe
+  2. run_backend.bat / run_backend.cmd
+  3. python server.py --server
+
+Recommended production package
+- Ship Game.exe
+- Ship Game_Data folder
+- Put AIBackend.exe in Game_Data\StreamingAssets\AI if you package the Python backend as an executable.
+- If you do not have AIBackend.exe, ship server.py plus an embedded Python runtime in Game_Data\StreamingAssets\AI\python.
+
+New machine checklist
+- Option A: AIBackend.exe exists in StreamingAssets\AI.
+- Option B: Embedded python exists in StreamingAssets\AI\python.
+- Option C: System python is installed and available through py or python.
