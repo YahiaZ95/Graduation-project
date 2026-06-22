@@ -1,8 +1,13 @@
 using UnityEngine;
 using System;
 using System.IO;
+
 #if UNITY_EDITOR
 using UnityEditor;
+#endif
+
+#if UNITY_STANDALONE
+using SFB;
 #endif
 
 public class LayoutExporter : MonoBehaviour
@@ -20,7 +25,6 @@ public class LayoutExporter : MonoBehaviour
     public void ExportToPNG()
     {
         Debug.Log("Starting PNG export...");
-
         StartCoroutine(CaptureAndSave());
     }
 
@@ -44,10 +48,15 @@ public class LayoutExporter : MonoBehaviour
 
         byte[] bytes = image.EncodeToPNG();
 
-        string fileName = outputFileNamePrefix + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".png";
+        string fileName = outputFileNamePrefix +
+                          DateTime.Now.ToString("yyyyMMdd_HHmmss") +
+                          ".png";
 
         string path = "";
 
+        // =========================
+        // UNITY EDITOR
+        // =========================
 #if UNITY_EDITOR
         path = EditorUtility.SaveFilePanel(
             "Save Farm Layout Image",
@@ -55,10 +64,32 @@ public class LayoutExporter : MonoBehaviour
             fileName,
             "png"
         );
-#else
-    path = Path.Combine(Application.persistentDataPath, fileName);
+
+        // =========================
+        // BUILD (Standalone)
+        // =========================
+#elif UNITY_STANDALONE
+        var extensions = new[]
+        {
+            new ExtensionFilter("Image Files", "png")
+        };
+
+        string result = StandaloneFileBrowser.SaveFilePanel(
+            "Save Farm Layout Image",
+            "",
+            fileName,
+            extensions
+        );
+
+        if (!string.IsNullOrEmpty(result))
+        {
+            path = result;
+        }
 #endif
 
+        // =========================
+        // SAVE FILE
+        // =========================
         if (!string.IsNullOrEmpty(path))
         {
             File.WriteAllBytes(path, bytes);
