@@ -20,8 +20,20 @@ public class IrrigationSystem : MonoBehaviour
     {
         ClearPrevious();
 
+        if (plantation == null)
+        {
+            Debug.LogWarning("IrrigationSystem: PlantationLayout reference is not assigned.");
+            return;
+        }
+
         int countX = plantation.CountX;
         int countZ = plantation.CountZ;
+
+        if (countX <= 0 || countZ <= 0)
+        {
+            Debug.LogWarning("IrrigationSystem: Invalid plantation grid size.");
+            return;
+        }
 
         float startX = plantation.StartX;
         float startZ = plantation.StartZ;
@@ -30,21 +42,20 @@ public class IrrigationSystem : MonoBehaviour
         // === إنشاء الصفوف (Horizontal) ===
         for (int row = 0; row < countZ; row++)
         {
-            float zPos = startZ + row * spacing - 1;
-            Vector3 startPoint = new Vector3(startX - 1, pipeHeight, zPos);
+            float zPos = startZ + row * spacing;
+            Vector3 startPoint = new Vector3(startX, pipeHeight, zPos);
             Vector3 endPoint = new Vector3(startX + (countX - 1) * spacing, pipeHeight, zPos);
-
             CreatePipe(startPoint, endPoint);
         }
 
         // === إنشاء الأعمدة (Vertical) ===
-
-        float xPos = startX - 1;
-        Vector3 startPointV = new Vector3(xPos, pipeHeight, startZ - 1);
-        Vector3 endPointV = new Vector3(xPos, pipeHeight, (startZ + (countZ - 1) * spacing) - 1);
-
-        CreatePipe(startPointV, endPointV);
-
+        for (int col = 0; col < countX; col++)
+        {
+            float xPos = startX + col * spacing;
+            Vector3 startPointV = new Vector3(xPos, pipeHeight, startZ);
+            Vector3 endPointV = new Vector3(xPos, pipeHeight, startZ + (countZ - 1) * spacing);
+            CreatePipe(startPointV, endPointV);
+        }
 
         Debug.Log("Irrigation system generated with horizontal and vertical pipes.");
     }

@@ -240,9 +240,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 121657309}
-        m_TargetAssemblyTypeName: ControlPanel, Assembly-CSharp
-        m_MethodName: ShowGroundSizePanel
+      - m_Target: {fileID: 963194230}
+        m_TargetAssemblyTypeName: CameraFlags, Assembly-CSharp
+        m_MethodName: SetSolidColorMode
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -272,7 +272,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d7f7056c7a8d7f549b5c4e4d873ac432, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 62a06beae7bb39242b806ee2f61e0e5b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4793,7 +4793,7 @@ MonoBehaviour:
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 45, y: 45}
-  m_Spacing: {x: 0, y: 0}
+  m_Spacing: {x: 10, y: 10}
   m_Constraint: 0
   m_ConstraintCount: 2
 --- !u!1 &811073006
@@ -5436,6 +5436,7 @@ GameObject:
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
   - component: {fileID: 963194229}
+  - component: {fileID: 963194230}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -5550,6 +5551,23 @@ MonoBehaviour:
   orbitPanSpeed: 0.5
   orbitMinY: 5
   orbitMaxY: 85
+--- !u!114 &963194230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f9bc42c20331fc4c987c1e99d6e0860, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetCamera: {fileID: 963194227}
+  solidColor: {r: 0.21698111, g: 0.21698111, b: 0.21698111, a: 1}
+  enableSunModeAtStart: 1
+  sunLight: {fileID: 705507994}
+  skyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!1 &990500827
 GameObject:
   m_ObjectHideFlags: 0
@@ -7906,8 +7924,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 75, y: -25}
-  m_SizeDelta: {x: 150, y: 50}
+  m_AnchoredPosition: {x: 50, y: -25}
+  m_SizeDelta: {x: 100, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1431823973
 GameObject:
@@ -8191,9 +8209,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 121657309}
-        m_TargetAssemblyTypeName: ControlPanel, Assembly-CSharp
-        m_MethodName: ShowGroundSizePanel
+      - m_Target: {fileID: 963194230}
+        m_TargetAssemblyTypeName: CameraFlags, Assembly-CSharp
+        m_MethodName: SetSunMode
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9409,8 +9427,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ground: {fileID: 125898738}
-  treePrefab: {fileID: 7970643822797069676, guid: e4a4a4231c1245745a26975e91764586, type: 3}
-  plamPrefab: {fileID: 7970643822797069676, guid: e4a4a4231c1245745a26975e91764586, type: 3}
+  treePrefab: {fileID: 5709691930905534646, guid: 48bf71accfd407742af98d87b21e49d3, type: 3}
+  plamPrefab: {fileID: 5709691930905534646, guid: 48bf71accfd407742af98d87b21e49d3, type: 3}
   plants: {fileID: 362884388}
   parentContainer: {fileID: 1698306647}
   spacing: 8

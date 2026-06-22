@@ -23,7 +23,13 @@ public class PlantationLayout : MonoBehaviour
     public float StartX { get; private set; }
     public float StartZ { get; private set; }
     public float Spacing => spacing;
+    private string GetSelectedPlantType()
+    {
+        if (plants == null || plants.options == null || plants.value < 0 || plants.value >= plants.options.Count)
+            return "trees";
 
+        return plants.options[plants.value].text.Trim().ToLowerInvariant();
+    }
     public void GeneratePlants()
     {
         if (ground == null || treePrefab == null || plamPrefab == null)
@@ -42,6 +48,9 @@ public class PlantationLayout : MonoBehaviour
 
         float width = ground.width;
         float length = ground.length;
+        string selectedPlantType = GetSelectedPlantType();
+        GameObject plantPrefab = selectedPlantType == "palm" ? plamPrefab : treePrefab;
+        Quaternion plantRotation = Quaternion.Euler(-90f, 0f, 0f);
 
         // الركن السفلي الأيسر داخل الهامش
         StartX = -width * 0.5f + borderOffset;
@@ -72,11 +81,11 @@ public class PlantationLayout : MonoBehaviour
 
                 Vector3 position = new Vector3(posX, 0f, posZ);
 
-                Instantiate(treePrefab, position, Quaternion.identity, parentContainer);
+                Instantiate(plantPrefab, position, plantRotation, parentContainer);
             }
         }
 
-        Debug.Log($"Generated {CountX * CountZ} trees.");
+        Debug.Log($"Generated {CountX * CountZ} plants.");
     }
 
     public void ClearPlants()
@@ -93,20 +102,14 @@ public class PlantationLayout : MonoBehaviour
     {
         ClearPlants();
 
-        string selected = plants.options[plants.value].text;
+        string selectedPlantType = GetSelectedPlantType();
+        GameObject plantPrefab = selectedPlantType == "palm" ? plamPrefab : treePrefab;
+        Quaternion plantRotation = Quaternion.Euler(0f, 0f, 0f);
 
         foreach (var t in trees)
         {
             Vector3 pos = new Vector3(t.x, 0f, t.z);
-
-            if (selected == "Trees")
-            {
-                Instantiate(treePrefab, pos, Quaternion.identity, parentContainer);
-            }
-            else if (selected == "Palm")
-            {
-                Instantiate(plamPrefab, pos, Quaternion.identity, parentContainer);
-            }
+            Instantiate(plantPrefab, pos, plantRotation, parentContainer);
         }
     }
 

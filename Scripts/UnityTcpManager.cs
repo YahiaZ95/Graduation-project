@@ -8,13 +8,6 @@ using System.Net.Sockets;
 using System.Text;
 
 
-public enum CropType
-{
-    Trees,
-    Palm
-}
-
-
 [Serializable]
 public class Point2D
 {
@@ -80,7 +73,7 @@ public class TestPreset
     public float width;
     public float height;
     public Vector2 well_position;
-    public CropType crop_type;
+    public string crop_type_name;
     public float well_safe_radius;
     public List<ForbiddenZone> forbidden_zones;
 }
@@ -91,7 +84,7 @@ public class FarmData
     public float width;
     public float height;
     public Point2D well_position;
-    public CropType crop_type;
+    public string crop_type;
     public float well_safe_radius;
     public List<ForbiddenZone> forbidden_zones;
 }
@@ -151,14 +144,14 @@ public class UnityTcpManager : MonoBehaviour
         }
     }
 
-    public IEnumerator SendFarmDataCoroutine(float width, float length, Vector3 wellPos, CropType cropType, float wellSafeRadius, List<ForbiddenZone> forbiddenZones = null)
+    public IEnumerator SendFarmDataCoroutine(float width, float length, Vector3 wellPos, string cropTypeName, float wellSafeRadius, List<ForbiddenZone> forbiddenZones = null)
     {
         FarmData data = new FarmData
         {
             width = width,
             height = length,
             well_position = new Point2D { x = wellPos.x, z = wellPos.z },
-            crop_type = cropType,
+            crop_type = cropTypeName,
             well_safe_radius = wellSafeRadius,
             forbidden_zones = forbiddenZones ?? new List<ForbiddenZone>()
         };
@@ -231,21 +224,6 @@ public class UnityTcpManager : MonoBehaviour
         }
     }
 
-    public void SendFarmDataFromGround(CropType cropType)
-    {
-    }
-
-    public IEnumerator SendFarmDataFromGroundCoroutine(CropType cropType)
-    {
-        if (ground == null)
-        {
-            UnityEngine.Debug.LogWarning("Ground generator is not assigned.");
-            yield break;
-        }
-
-        yield return StartCoroutine(SendFarmDataCoroutine(ground.width, ground.length, ground.well_pos, cropType, wellSafeRadius));
-    }
-
     public void ApplyPreset(int index)
     {
         if (testPresets == null || index < 0 || index >= testPresets.Count)
@@ -267,11 +245,12 @@ public class UnityTcpManager : MonoBehaviour
 
         wellSafeRadius = preset.well_safe_radius;
 
+        string presetCropType = !string.IsNullOrEmpty(preset.crop_type_name) ? preset.crop_type_name : "Olive";
         StartCoroutine(SendFarmDataCoroutine(
             preset.width,
             preset.height,
             new Vector3(preset.well_position.x, 0f, preset.well_position.y),
-            preset.crop_type,
+            presetCropType,
             wellSafeRadius,
             preset.forbidden_zones));
     }

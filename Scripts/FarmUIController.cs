@@ -60,7 +60,24 @@ public class FarmUIController : MonoBehaviour
         if (cropTypeDropdown != null)
         {
             cropTypeDropdown.ClearOptions();
-            cropTypeDropdown.AddOptions(new List<string> { "Trees", "Palm" });
+            cropTypeDropdown.AddOptions(new List<string>
+            {
+                "Olive",
+                "Mango",
+                "Orange",
+                "Lemon",
+                "Guava",
+                "Pomegranate",
+                "Date Palm",
+                "Apple",
+                "Peach",
+                "Apricot",
+                "Pear",
+                "Fig",
+                "Mulberry",
+                "Avocado",
+                "Cherry",
+            });
             cropTypeDropdown.value = 0;
         }
     }
@@ -78,7 +95,9 @@ public class FarmUIController : MonoBehaviour
         float wellX = ParseFloat(wellXInput, groundGenerator.well_pos.x);
         float wellZ = ParseFloat(wellZInput, groundGenerator.well_pos.z);
         float wellSafeRadius = ParseFloat(wellSafeRadiusInput, tcpManager.wellSafeRadius);
-        CropType cropType = (CropType)cropTypeDropdown.value;
+        string cropTypeName = cropTypeDropdown != null && cropTypeDropdown.options != null && cropTypeDropdown.options.Count > cropTypeDropdown.value
+            ? cropTypeDropdown.options[cropTypeDropdown.value].text.Trim()
+            : "Olive";
 
         float forbiddenX = ParseFloat(forbiddenXInput, 0f);
         float forbiddenZ = ParseFloat(forbiddenZInput, 0f);
@@ -98,7 +117,7 @@ public class FarmUIController : MonoBehaviour
         groundGenerator.SetWell(wellPos);
 
         StartCoroutine(tcpManager.SendFarmDataCoroutine(
-            width, height, wellPos, cropType, wellSafeRadius, forbiddenZones));
+            width, height, wellPos, cropTypeName, wellSafeRadius, forbiddenZones));
     }
 
     private void OnDeleteClicked()
