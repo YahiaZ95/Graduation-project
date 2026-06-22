@@ -28,6 +28,10 @@ public class CameraController : MonoBehaviour
     public float topDownHeight = 25f;
     public float topDownDistance = 0f;
     public float topDownPanSpeed = 10f;
+    public float topDownMousePanSpeed = 1.0f;
+    public float topDownZoomSpeed = 10f;
+    public float topDownMinOrthoSize = 2f;
+    public float topDownMaxOrthoSize = 100f;
 
     [Header("Blender Orbit")]
     public float orbitDistance = 10f;
@@ -42,15 +46,19 @@ public class CameraController : MonoBehaviour
     private float currentOrbitDistance;
     private Vector2 orbitAngles = new Vector2(45f, 45f);
     private Vector3 topDownPosition;
+    private Camera cam;
+    private Vector3 topDownOffset = Vector3.zero;
 
     void Start()
     {
+        cam = GetComponent<Camera>();
         currentOrbitDistance = orbitDistance;
         orbitAngles = new Vector2(transform.eulerAngles.y, transform.eulerAngles.x);
         if (target == null)
         {
             Debug.LogWarning("CameraController: Target is not assigned. TopDown and BlenderOrbit modes will use the camera position only.");
         }
+        ApplyModeSettings(mode);
     }
 
     void Update()
@@ -76,14 +84,39 @@ public class CameraController : MonoBehaviour
         if (Input.GetKeyDown(freeLookKey))
         {
             mode = CameraMode.FreeLook;
+            ApplyModeSettings(mode);
         }
         else if (Input.GetKeyDown(topDownKey))
         {
             mode = CameraMode.TopDown;
+            ApplyModeSettings(mode);
         }
         else if (Input.GetKeyDown(blenderKey))
         {
             mode = CameraMode.BlenderOrbit;
+            ApplyModeSettings(mode);
+        }
+    }
+
+    private void ApplyModeSettings(CameraMode newMode)
+    {
+        if (cam == null) cam = GetComponent<Camera>();
+        switch (newMode)
+        {
+            case CameraMode.TopDown:
+                cam.orthographic = true;
+                // keep orthographic size proportional to height if not set
+                cam.orthographicSize = Mathf.Clamp(cam.orthographicSize > 0f ? cam.orthographicSize : topDownHeight * 0.5f, topDownMinOrthoSize, topDownMaxOrthoSize);
+                // initialize offset so camera doesn't snap back when switching modes
+                {
+                    Vector3 basePosition = target != null ? target.position : transform.position;
+                    Vector3 desiredPosition = basePosition + Vector3.up * topDownHeight + Vector3.forward * topDownDistance;
+                    topDownOffset = transform.position - desiredPosition;
+                }
+                break;
+            default:
+                cam.orthographic = false;
+                break;
         }
     }
 
@@ -117,14 +150,45 @@ public class CameraController : MonoBehaviour
         Vector3 basePosition = target != null ? target.position : transform.position;
         Vector3 desiredPosition = basePosition + Vector3.up * topDownHeight + Vector3.forward * topDownDistance;
 
-        topDownPosition = Vector3.Lerp(transform.position, desiredPosition, Time.deltaTime * 10f);
-        transform.position = topDownPosition;
+        // Apply persistent offset to keep camera where user moved it
+        Vector3 targetPosition = desiredPosition + topDownOffset;
+        // snap immediately to avoid returning to original place
+        transform.position = targetPosition;
         transform.rotation = Quaternion.Euler(90f, 0f, 0f);
 
+        // Keyboard pan (world X/Z)
+        // Keyboard pan adjusts the persistent offset (world X/Z)
         Vector3 pan = Vector3.zero;
-        pan += transform.right * Input.GetAxis("Horizontal");
-        pan += transform.forward * Input.GetAxis("Vertical");
-        transform.position += pan * topDownPanSpeed * Time.deltaTime;
+        pan += Vector3.right * Input.GetAxis("Horizontal");
+        pan += Vector3.forward * Input.GetAxis("Vertical");
+        topDownOffset += pan * topDownPanSpeed * Time.deltaTime;
+
+        // Mouse wheel zoom (orthographic size) or adjust height in perspective
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (Mathf.Abs(scroll) > 0.0001f)
+        {
+            if (cam != null && cam.orthographic)
+            {
+                cam.orthographicSize -= scroll * topDownZoomSpeed;
+                cam.orthographicSize = Mathf.Clamp(cam.orthographicSize, topDownMinOrthoSize, topDownMaxOrthoSize);
+            }
+            else
+            {
+                topDownHeight -= scroll * topDownZoomSpeed;
+                topDownHeight = Mathf.Max(1f, topDownHeight);
+            }
+        }
+
+        // Mouse-drag panning (middle mouse button)
+        if (Input.GetMouseButton(2))
+        {
+            float mx = Input.GetAxis("Mouse X");
+            float my = Input.GetAxis("Mouse Y");
+            // invert to match drag direction
+            Vector3 mousePan = new Vector3(-mx, 0f, -my);
+            float factor = topDownMousePanSpeed * (cam != null && cam.orthographic ? cam.orthographicSize * 0.1f : 1f);
+            topDownOffset += mousePan * factor;
+        }
     }
 
     private void UpdateBlenderOrbit()
